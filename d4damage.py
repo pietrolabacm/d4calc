@@ -3,6 +3,8 @@ import statistics
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
+import os
 
 class D4damage():
     def __init__(self, skill, baseDamageMin, baseDamageMax, mainAttribute, 
@@ -78,38 +80,65 @@ class D4damage():
                *(1 + legendary/100))
         return hit
 
-    def graph(self, value, baseDamage, skill, mainAttribute, additive,
+    def graph(self, value, skill, baseDamage, mainAttribute, additive,
               vulnerability, criticalChance, criticalDamage, legendary):
         
         x = np.linspace(0, value, num=20)
 
         if baseDamage:
             baseDamage = self.hitPreview(x, 'baseDamage')
-            plt.plot(x, baseDamage,'k')
+            plt.plot(x, baseDamage,'k', label='B Dmg')
         if skill:
             skill = self.hitPreview(x, 'skill')
-            plt.plot(x, skill, 'y')
+            plt.plot(x, skill, 'y', label='Skill')
         if mainAttribute:
             mainAttribute = self.hitPreview(x, 'mainAttribute')
-            plt.plot(x, mainAttribute, 'c')
+            plt.plot(x, mainAttribute, 'c', label='Main Att')
         if additive:
             additive = self.hitPreview(x, 'additive')
-            plt.plot(x, additive,'g')
+            plt.plot(x, additive,'g', label='Add')
         if vulnerability:
             vulnerability = self.hitPreview(x, 'vulnerability')
-            plt.plot(x, vulnerability,'b')
+            plt.plot(x, vulnerability,'b', label='Vuln')
         if criticalChance:
             criticalChance = self.hitPreview(x, 'criticalChance')
-            plt.plot(x, criticalChance, 'grey')
+            plt.plot(x, criticalChance, 'grey', label='Crit Chance')
         if criticalDamage:
             criticalDamage = self.hitPreview(x, 'criticalDamage')
-            plt.plot(x, criticalDamage,'r')
+            plt.plot(x, criticalDamage,'r', label = 'Crit Dmg')
         if legendary:
             legendary = self.hitPreview(x, 'legendary')
-            plt.plot(x, legendary, 'orange')
+            plt.plot(x, legendary, 'orange', label='Legendary')
 
+        plt.ylabel('Damage')
+        plt.xlabel('Affix Variance')
+        plt.grid(True)
+        plt.legend()
         plt.show()
 
+    def saveDamage(self, fileName, path):
+        with open(os.path.join(path,'%s.csv' % fileName)
+                  ,'w', newline='') as file:
+            writter = csv.writer(file)
+            writter.writerow([self.skill,
+                              self.baseDamageMin,
+                              self.baseDamageMax,
+                              self.mainAttribute,
+                              self.additive,
+                              self.vulnerability,
+                              self.criticalChance,
+                              self.criticalDamage,
+                              self.legendary])
+    
+    def loadDamage(fileName, path):
+        with open(os.path.join(path,fileName)) as file:
+            reader = csv.reader(file)
+            row = next(reader)
+            row = [int(i) for i in row]
+            damage = D4damage(*row)
+        return damage
+
+            
 def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainStat,
                         additive, vulnerability, criticalChance,
                         criticalDamage, Legendary):
@@ -130,106 +159,3 @@ def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainStat,
         damage.legendary = float(Legendary)
 
     return damage
-
-
-textBoxSize = 10
-
-layout=[[sg.Text('D4 Calculator')],
-        [sg.Text('Skill %', size=textBoxSize), 
-         sg.InputText(key='skill', enable_events=True, expand_x=True),
-         sg.Checkbox('',key='skillCheck')],
-        [sg.Text('B. Dmg Min', size=textBoxSize), 
-         sg.InputText(key='baseDamageMin', enable_events=True, expand_x=True), 
-         sg.Text('B. Dmg Max', size=textBoxSize), 
-         sg.InputText(key='baseDamageMax',enable_events=True, expand_x=True),
-         sg.Checkbox('',key='baseDamageCheck')],            
-        [sg.Text('Main Stat', size=textBoxSize), 
-         sg.InputText(key='mainStat', enable_events=True, expand_x=True),
-         sg.Checkbox('',key='mainStatCheck')],
-        [sg.Text('Additive', size=textBoxSize), 
-         sg.InputText(key='additive', enable_events=True, expand_x=True),
-         sg.Checkbox('',key='additiveCheck')],
-        [sg.Text('Vulnerability', size=textBoxSize), 
-         sg.InputText(key='vulnerability', enable_events=True,expand_x=True),
-         sg.Checkbox('',key='vulnerabilityCheck')],
-        [sg.Text('Crit. Chance',size=textBoxSize), 
-         sg.InputText(key='criticalChance', enable_events=True,expand_x=True),
-         sg.Checkbox('',key='criticalChanceCheck'), 
-         sg.Text('Crit. Damage', size=textBoxSize), 
-         sg.InputText(key='criticalDamage',enable_events=True,expand_x=True),
-         sg.Checkbox('',key='criticalDamageCheck')],
-        [sg.Text('Legendary',size=textBoxSize), 
-         sg.InputText(key='legendary', enable_events=True, expand_x=True),
-         sg.Checkbox('',key='legendaryCheck')],
-        [sg.Button('Calculate'), sg.Button('Graph')]]
-
-# Create the Window
-window = sg.Window('D4 Calculator', layout, element_justification='l',
-                   default_element_size=(7,200))
-# Event Loop to process "events" and get the "values" of the inputs
-while True:
-    event, values = window.read()
-    # if user closes window or clicks cancel
-    if event == sg.WIN_CLOSED or event == 'Cancel': 
-        break
-    
-    if (event == 'skill' and values['skill'] and values['skill'][-1] 
-            not in ('0123456789')):
-        window['skill'].update(values['skill'][:-1])
-    
-    if (event == 'baseDamageMin' and values['baseDamageMin'] 
-            and values['baseDamageMin'][-1] not in ('0123456789')):
-        window['baseDamageMin'].update(values['baseDamageMin'][:-1])
-
-    if (event == 'baseDamageMax' and values['baseDamageMax'] 
-            and values['baseDamageMax'][-1] not in ('0123456789')):
-        window['baseDamageMax'].update(values['baseDamageMax'][:-1])
-    
-    if (event == 'mainStat' and values['mainStat'] 
-            and values['mainStat'][-1] not in ('0123456789')):
-        window['mainStat'].update(values['mainStat'][:-1])
-    
-    if (event == 'additive' and values['additive'] 
-            and values['additive'][-1] not in ('0123456789')):
-        window['additive'].update(values['additive'][:-1])
-
-    if (event == 'vulnerability' and values['vulnerability'] 
-            and values['vulnerability'][-1] not in ('0123456789')):
-        window['vulnerability'].update(values['vulnerability'][:-1])
-
-    if (event == 'criticalChance' and values['criticalChance'] 
-            and values['criticalChance'][-1] not in ('0123456789')):
-        window['criticalChance'].update(values['criticalChance'][:-1])
-
-    if (event == 'criticalDamage' and values['criticalDamage'] 
-            and values['criticalDamage'][-1] not in ('0123456789')):
-        window['criticalDamage'].update(values['criticalDamage'][:-1])
-
-    if (event == 'legendary' and values['legendary'] 
-            and values['legendary'][-1] not in ('0123456789')):
-        window['legendary'].update(values['legendary'][:-1])
-    
-    if event == 'Calculate':
-        dmg1 = readDamageFromInput(values['skill'], values['baseDamageMin'],
-                                   values['baseDamageMax'], values['mainStat'],
-                                   values['additive'], values['vulnerability'],
-                                   values['criticalChance'],
-                                   values['criticalDamage'], 
-                                   values['legendary'])
-
-        print('%0.2f' % dmg1.hit())
-
-    if event == 'Graph':
-        dmg1 = readDamageFromInput(values['skill'], values['baseDamageMin'],
-                            values['baseDamageMax'], values['mainStat'],
-                            values['additive'], values['vulnerability'],
-                            values['criticalChance'],
-                            values['criticalDamage'], 
-                            values['legendary'])
-        dmg1.graph(20, values['skillCheck'], values['baseDamageCheck'],
-                   values['mainStatCheck'], values['additiveCheck'],
-                   values['vulnerabilityCheck'], values['criticalChanceCheck'],
-                   values['criticalDamageCheck'], values['legendaryCheck'])
-
-window.close()
-
