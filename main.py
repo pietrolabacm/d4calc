@@ -1,13 +1,16 @@
 from d4damage import *
 
-textBoxSize = 10
+textBoxSize = 11
 affixList = ['skill','baseDamageMin','baseDamageMax','mainStat','additive',
-             'vulnerability', 'criticalChance', 'criticalDamage','legendary']
+             'vulnerability', 'criticalChance', 'criticalDamage',
+             'overpowerChance','overpowerDamage','legendary']
+
+inputList = affixList+['graphSize','multiHit']
 
 menu_def=[['File',['Save','Load']]]
 
 layout=[[sg.Menu(menu_def)],
-        [sg.Text('D4 Calculator')],
+        #[sg.Text('D4 Calculator')],
         [sg.Text('Skill %', size=textBoxSize), 
          sg.InputText(key='skill', enable_events=True, expand_x=True),
          sg.Checkbox('',key='skillCheck',enable_events=True)],
@@ -31,14 +34,27 @@ layout=[[sg.Menu(menu_def)],
          sg.Text('Crit. Damage', size=textBoxSize), 
          sg.InputText(key='criticalDamage',enable_events=True,expand_x=True),
          sg.Checkbox('',key='criticalDamageCheck', enable_events=True)],
+        [sg.Text('Ovpw. Chance',size=textBoxSize), 
+         sg.InputText(key='overpowerChance', enable_events=True,expand_x=True),
+         sg.Checkbox('',key='overpowerChanceCheck', enable_events=True), 
+         sg.Text('Ovpw. Damage', size=textBoxSize), 
+         sg.InputText(key='overpowerDamage',enable_events=True,expand_x=True),
+         sg.Checkbox('',key='overpowerDamageCheck', enable_events=True)],
         [sg.Text('Legendary',size=textBoxSize), 
          sg.InputText(key='legendary', enable_events=True, expand_x=True),
          sg.Checkbox('',key='legendaryCheck', enable_events=True)],
         [sg.Button('Calculate'),
-         sg.Text('', size = 9,key='calculate', relief='raised', 
-                 justification='r'), 
+         sg.Text('', size = 8,key='calculate', relief='raised', 
+                 justification='r'),
+         sg.Button('Mean'),
+         sg.Text('', size = 8,key='mean', relief='raised', 
+                 justification='r'),  
          sg.Button('Graph', disabled=True),
-         sg.InputText(key='graphSize', enable_events=True, size= 3)]]
+         sg.InputText(key='graphSize', enable_events=True, size= 3)],
+        [sg.InputText(key='multiHit',enable_events=True,size=3),
+         sg.Button('Multi Hit'),
+         sg.Text('',key='multiHitText',expand_x=True, size=(30,2), 
+                 relief='raised',justification='l')]]
 
 # Create the Window
 window = sg.Window('D4 Calculator', layout, element_justification='l',
@@ -50,20 +66,17 @@ while True:
     if event == sg.WIN_CLOSED or event == 'Cancel': 
         break
     
-    for i in affixList:
-        if(event == i) and values[i] and values[i][-1] not in ('0123456789'):
+    for i in inputList:
+        if (event == i and values[i] and values[i][-1] 
+                not in ('0123456789+-*/')):
             window[i].update(values[i][:-1])
 
-    if ((event == 'graphSize' or event =='skillCheck' 
-            or event=='baseDamageCheck' or event =='mainStatCheck'
-            or event=='additiveCheck' or event=='vulnerabilityCheck'
-            or event=='criticalChanceCheck' or event=='criticalDamageCheck'
-            or event=='legendaryCheck') 
-            and
-            (values['skillCheck'] or values['baseDamageCheck'] 
+    if ((values['skillCheck'] or values['baseDamageCheck'] 
             or values['mainStatCheck'] or values['additiveCheck']
             or values['vulnerabilityCheck'] or values['criticalChanceCheck']
-            or values['criticalDamageCheck'] or values['legendaryCheck'])
+            or values['criticalDamageCheck'] or values['legendaryCheck']
+            or values['overpowerChanceCheck'] 
+            or values['overpowerDamageCheck'])
             and 
             values['graphSize']):
         window['Graph'].update(disabled=False)
@@ -87,14 +100,35 @@ while True:
                 window[i].update(sg.user_settings_get_entry(i,))
 
     if event == 'Calculate':
+        window['calculate'].update(text_color='white')
         dmg1 = readDamageFromInput(values['skill'], values['baseDamageMin'],
                                    values['baseDamageMax'], values['mainStat'],
                                    values['additive'], values['vulnerability'],
                                    values['criticalChance'],
-                                   values['criticalDamage'], 
+                                   values['criticalDamage'],
+                                   values['overpowerChance'],
+                                   values['overpowerDamage'], 
                                    values['legendary'])
+        hit, critical, overpower = dmg1.hit()
+        if critical:
+            window['calculate'].update(text_color='yellow')
+        if overpower:
+            window['calculate'].update(text_color='blue')
+        if critical and overpower:
+            window['calculate'].update(text_color='orange')
+        window['calculate'].update(f'{int(hit):,}')
 
-        window['calculate'].update('%0.0f' % dmg1.hit())
+    if event == 'Mean':
+        dmg1 = readDamageFromInput(values['skill'], values['baseDamageMin'],
+                                   values['baseDamageMax'], values['mainStat'],
+                                   values['additive'], values['vulnerability'],
+                                   values['criticalChance'],
+                                   values['criticalDamage'],
+                                   values['overpowerChance'],
+                                   values['overpowerDamage'], 
+                                   values['legendary'])
+        hit = dmg1.meanHit()
+        window['mean'].update(f'{int(hit):,}')
 
     if event == 'Graph':
         dmg1 = readDamageFromInput(values['skill'], 
@@ -104,7 +138,9 @@ while True:
                                    values['additive'], 
                                    values['vulnerability'],
                                    values['criticalChance'],
-                                   values['criticalDamage'], 
+                                   values['criticalDamage'],
+                                   values['overpowerChance'],
+                                   values['overpowerDamage'], 
                                    values['legendary'])
         
         dmg1.graph(int(values['graphSize']), 
@@ -114,9 +150,27 @@ while True:
                    values['additiveCheck'],
                    values['vulnerabilityCheck'], 
                    values['criticalChanceCheck'],
-                   values['criticalDamageCheck'], 
+                   values['criticalDamageCheck'],
+                   values['overpowerChanceCheck'],
+                   values['overpowerDamageCheck'], 
                    values['legendaryCheck'])
         
         window['Graph'].update(disabled=False)
+    
+    if event == 'Multi Hit':
+        dmg1 = readDamageFromInput(values['skill'], values['baseDamageMin'],
+                                   values['baseDamageMax'], values['mainStat'],
+                                   values['additive'], values['vulnerability'],
+                                   values['criticalChance'],
+                                   values['criticalDamage'],
+                                   values['overpowerChance'],
+                                   values['overpowerDamage'], 
+                                   values['legendary'])
+        
+        total, meanHit, critical, overpower = dmg1.hitTimes(
+            int(values['multiHit']))
+        window['multiHitText'].update(
+            f'Total: {int(total):,}    Mean: {int(meanHit):,}\n'\
+            f'Critical Strikes: {critical}    Overpowers: {overpower}')
 
 window.close()
