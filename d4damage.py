@@ -2,6 +2,7 @@ import random
 import statistics
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import csv
 import os
@@ -23,7 +24,53 @@ class D4damage():
         self.overpowerDamage = overpowerDamage
         self.legendary = legendary
         self.baseDamage = statistics.mean([baseDamageMin,baseDamageMax])
+
+        self.addAffixDict = {'skill': self.addSkill,
+                             'mainAttribute': self.addMainAttribute,
+                             'additive': self.addAdditive,
+                             'vulnerability': self.addVulnerability,
+                             'criticalChance': self.addCriticalChance,
+                             'criticalDamage': self.addCriticalDamage,
+                             'overpowerChance': self.addOverpowerChance,
+                             'overpowerDamage': self.addOverpowerDamage,
+                             'legendary': self.addLegendary}
     
+    def addSkill(self,value):
+        self.skill = self.skill + value
+        return self.skill
+    
+    def addMainAttribute(self,value):
+        self.mainAttribute = self.mainAttribute + value
+        return self.mainAttribute
+    
+    def addAdditive(self,value):
+        self.additive = self.additive + value
+        return self.additive
+    
+    def addVulnerability(self,value):
+        self.vulnerability = self.vulnerability + value
+        return self.vulnerability
+
+    def addCriticalChance(self,value):
+        self.criticalChance = self.criticalChance + value
+        return self.criticalChance
+
+    def addCriticalDamage(self,value):
+        self.criticalDamage = self.mainAttribute + value
+        return self.mainAttribute
+
+    def addOverpowerChance(self,value):
+        self.overpowerChance = self.overpowerChance + value
+        return self.overpowerChance
+    
+    def addOverpowerDamage(self,value):
+        self.overpowerDamage = self.overpowerDamage + value
+        return self.overpowerDamage
+
+    def addLegendary(self,value):
+        self.legendary = self.legendary + value
+        return self.legendary
+
     #This function rolls your hit naturally
     #It does not take averages from your crit and base dmg
     def hitTimes(self,times):
@@ -133,7 +180,7 @@ class D4damage():
             plt.plot(x, skill, 'y', label='Skill')
         if mainAttribute:
             mainAttribute = self.hitPreview(x, 'mainAttribute')
-            plt.plot(x, mainAttribute, 'c', label='Main Att')
+            plt.plot(x, mainAttribute, 'lightGreen', label='Main Att')
         if additive:
             additive = self.hitPreview(x, 'additive')
             plt.plot(x, additive,'g', label='Add')
@@ -148,7 +195,7 @@ class D4damage():
             plt.plot(x, criticalDamage,'r', label = 'Crit Dmg')
         if overpowerChance:
             overpowerChance = self.hitPreview(x, 'overpowerChance')
-            plt.plot(x, overpowerChance, 'grey', label='Ovpw Chance')
+            plt.plot(x, overpowerChance, 'lightBlue', label='Ovpw Chance')
         if overpowerDamage:
             overpowerDamage = self.hitPreview(x, 'overpowerDamage')
             plt.plot(x, overpowerDamage,'b', label = 'Ovpw Dmg')
@@ -160,33 +207,52 @@ class D4damage():
         plt.xlabel('Affix Variance')
         plt.grid(True)
         plt.legend()
+        plt.ticklabel_format(scilimits=(-5, 8))
+        yaxis = plt.gca().get_yticks()
+        plt.gca().set_yticklabels(['{:,.0f}'.format(i) for i in yaxis])
+
         plt.show()
 
-    def saveDamage(self, fileName, path):
-        with open(os.path.join(path,'%s.csv' % fileName)
-                  ,'w', newline='') as file:
-            writter = csv.writer(file)
-            writter.writerow([self.skill,
-                              self.baseDamageMin,
-                              self.baseDamageMax,
-                              self.mainAttribute,
-                              self.additive,
-                              self.vulnerability,
-                              self.criticalChance,
-                              self.criticalDamage,
-                              self.overpowerChance,
-                              self.overpowerDamage,
-                              self.legendary])
-    
-    def loadDamage(fileName, path):
-        with open(os.path.join(path,fileName)) as file:
-            reader = csv.reader(file)
-            row = next(reader)
-            row = [int(i) for i in row]
-            damage = D4damage(*row)
-        return damage
+    def equip(self, equipment):
+        self.mainAttribute = self.mainAttribute + equipment.mainAttribute
+        self.vulnerability = self.vulnerability + equipment.vulnerability
+        self.criticalChance = self.criticalChance + equipment.criticalChance
+        self.criticalDamage = self.criticalDamage + equipment.criticalDamage
+        self.overpowerChance = self.overpowerChance + equipment.overpowerChance
+        self.overpowerDamage = self.overpowerDamage + equipment.overpowerDamage
+        self.legendary = self. legendary + equipment.legendary
+        self.additive = self.additive + equipment.additive
+        
 
-            
+class Equipment():
+    def __init__(self,*affixes):
+        #main attribute
+        self.mainAttribute = 0
+        self.allStats = 0
+
+        self.vulnerability = 0
+        self.criticalChance = 0
+        self.criticalDamage = 0
+        self.overpowerChance = 0
+        self.overpowerDamage = 0
+        self.legendary = 0
+
+        #additive
+        self.damage = 0
+        self.damageSlow = 0
+        self.damageBurning = 0
+
+        for i in affixes:
+            setattr(self,i[0],int(i[1]))
+        
+        mainAttributeList = [self.mainAttribute, self.allStats]
+        additiveList = [self.damage, self.damageSlow, self.damageBurning]
+        
+        self.mainAttribute = sum(mainAttributeList)
+        self.additive = sum(additiveList)
+
+
+
 def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainStat,
                         additive, vulnerability, criticalChance,
                         criticalDamage, overpowerChance,
