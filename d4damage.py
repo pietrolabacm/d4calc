@@ -25,6 +25,20 @@ class D4damage():
         self.legendary = legendary
         self.baseDamage = statistics.mean([baseDamageMin,baseDamageMax])
 
+    def getAffix(self,var):
+        affixDict = {'skill': self.skill,
+                        'baseDamageMin': self.baseDamageMin,
+                        'baseDamageMax': self.baseDamageMax,
+                        'mainAttribute': self.mainAttribute,
+                        'additive': self.additive,
+                        'vulnerability': self.vulnerability,
+                        'criticalChance': self.criticalChance,
+                        'criticalDamage': self.criticalDamage,
+                        'overpowerChance': self.overpowerChance,
+                        'overpowerDamage': self.overpowerDamage,
+                        'legendary': self.legendary}
+        return affixDict[var]
+
         self.addAffixDict = {'skill': self.addSkill,
                              'mainAttribute': self.addMainAttribute,
                              'additive': self.addAdditive,
@@ -44,7 +58,7 @@ class D4damage():
         return self.mainAttribute
     
     def addAdditive(self,value):
-        self.additive = self.additive + value
+        self.additive = value
         return self.additive
     
     def addVulnerability(self,value):
@@ -208,8 +222,8 @@ class D4damage():
         plt.grid(True)
         plt.legend()
         plt.ticklabel_format(scilimits=(-5, 8))
-        yaxis = plt.gca().get_yticks()
-        plt.gca().set_yticklabels(['{:,.0f}'.format(i) for i in yaxis])
+        #yaxis = plt.gca().get_yticks()
+        #plt.gca().set_yticklabels(['{:,.0f}'.format(i) for i in yaxis])
 
         plt.show()
 
@@ -222,10 +236,35 @@ class D4damage():
         self.overpowerDamage = self.overpowerDamage + equipment.overpowerDamage
         self.legendary = self. legendary + equipment.legendary
         self.additive = self.additive + equipment.additive
+    
+    def remove(self, equipment):
+        self.mainAttribute = self.mainAttribute - equipment.mainAttribute
+        self.vulnerability = self.vulnerability - equipment.vulnerability
+        self.criticalChance = self.criticalChance - equipment.criticalChance
+        self.criticalDamage = self.criticalDamage - equipment.criticalDamage
+        self.overpowerChance = self.overpowerChance - equipment.overpowerChance
+        self.overpowerDamage = self.overpowerDamage - equipment.overpowerDamage
+        self.legendary = self. legendary - equipment.legendary
+        self.additive = self.additive - equipment.additive
+
+    def compare(self,equip1,equip2):
+        base = self.meanHit()
+
+        self.equip(equip1)
+        hit1 = self.meanHit()
+        self.remove(equip1)
+
+        self.equip(equip2)
+        hit2 = self.meanHit()
+        self.remove(equip2)
+
+        return base, hit1, hit2
+
         
 
 class Equipment():
-    def __init__(self,*affixes):
+    def __init__(self,name,*affixes):
+        self.name = name
         #main attribute
         self.mainAttribute = 0
         self.allStats = 0
@@ -253,7 +292,7 @@ class Equipment():
 
 
 
-def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainStat,
+def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainAttribute,
                         additive, vulnerability, criticalChance,
                         criticalDamage, overpowerChance,
                         overpowerDamage, Legendary):
@@ -261,8 +300,8 @@ def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainStat,
     damage = D4damage(eval(skill),
                       eval(baseDamageMin),
                       eval(baseDamageMax),
-                      eval(mainStat))
-        
+                      eval(mainAttribute))
+    
     if additive:
         damage.additive = eval(additive)
     if vulnerability:
