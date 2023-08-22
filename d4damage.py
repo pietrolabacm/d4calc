@@ -180,6 +180,7 @@ class D4damage():
                *(1 + legendary/100))
         return hit
 
+
     def graph(self, value, skill, baseDamage, mainAttribute, additive,
               vulnerability, criticalChance, criticalDamage,
               overpowerChance, overpowerDamage, legendary):
