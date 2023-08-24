@@ -2,7 +2,7 @@ import random
 import statistics
 import PySimpleGUI as sg
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+import pandas as pd
 import numpy as np
 import csv
 import os
@@ -189,10 +189,10 @@ class D4damage():
 
         if baseDamage:
             baseDamage = self.hitPreview(x, 'baseDamage')
-            plt.plot(x, baseDamage,'k', label='B Dmg')
+            baseDamage = plt.plot(x, baseDamage,'k', label='B Dmg')
         if skill:
             skill = self.hitPreview(x, 'skill')
-            plt.plot(x, skill, 'y', label='Skill')
+            skill = plt.plot(x, skill, 'y', label='Skill')
         if mainAttribute:
             mainAttribute = self.hitPreview(x, 'mainAttribute')
             plt.plot(x, mainAttribute, 'lightGreen', label='Main Att')
@@ -225,8 +225,51 @@ class D4damage():
         plt.ticklabel_format(scilimits=(-5, 8))
         #yaxis = plt.gca().get_yticks()
         #plt.gca().set_yticklabels(['{:,.0f}'.format(i) for i in yaxis])
-
         plt.show()
+
+    def graphDf(self, value, skill, baseDamage, mainAttribute, additive,
+                    vulnerability, criticalChance, criticalDamage,
+                    overpowerChance, overpowerDamage, legendary):
+        
+        linesDict = {}
+        indexDict = {}
+        x = np.linspace(0, value, num=20,dtype=int)
+        indexDict['x'] = x
+
+        if baseDamage:
+            baseDamage = self.hitPreview(x, 'baseDamage')
+            linesDict['Base Damage'] = baseDamage
+        if skill:
+            skill = self.hitPreview(x, 'skill')
+            linesDict['Skill'] = skill
+        if mainAttribute:
+            mainAttribute = self.hitPreview(x, 'mainAttribute')
+            linesDict['Main Attribute'] = mainAttribute
+        if additive:
+            additive = self.hitPreview(x, 'additive')
+            linesDict['Additive'] = additive
+        if vulnerability:
+            vulnerability = self.hitPreview(x, 'vulnerability')
+            linesDict['Vulnerability'] = vulnerability
+        if criticalChance:
+            criticalChance = self.hitPreview(x, 'criticalChance')
+            linesDict['Critical Chance'] = criticalChance
+        if criticalDamage:
+            criticalDamage = self.hitPreview(x, 'criticalDamage')
+            linesDict['Critical Damage'] = criticalDamage
+        if overpowerChance:
+            overpowerChance = self.hitPreview(x, 'overpowerChance')
+            linesDict['Overpower Chance'] = overpowerChance
+        if overpowerDamage:
+            overpowerDamage = self.hitPreview(x, 'overpowerDamage')
+            linesDict['Overpower Damage'] = overpowerDamage
+        if legendary:
+            legendary = self.hitPreview(x, 'legendary')
+            linesDict['Legendary'] = legendary
+
+        df = pd.DataFrame(linesDict, index=indexDict['x'])
+        return(df)
+    
 
     def equip(self, equipment):
         self.mainAttribute = self.mainAttribute + equipment.mainAttribute
