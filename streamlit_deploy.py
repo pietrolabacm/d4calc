@@ -1,6 +1,6 @@
 import random
 import statistics
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import csv
@@ -180,51 +180,51 @@ class D4damage():
         return hit
 
 
-    def graph(self, value, skill, baseDamage, mainAttribute, additive,
-              vulnerability, criticalChance, criticalDamage,
-              overpowerChance, overpowerDamage, legendary):
-        
-        x = np.linspace(0, value, num=20)
-
-        if baseDamage:
-            baseDamage = self.hitPreview(x, 'baseDamage')
-            baseDamage = plt.plot(x, baseDamage,'k', label='B Dmg')
-        if skill:
-            skill = self.hitPreview(x, 'skill')
-            skill = plt.plot(x, skill, 'y', label='Skill')
-        if mainAttribute:
-            mainAttribute = self.hitPreview(x, 'mainAttribute')
-            plt.plot(x, mainAttribute, 'lightGreen', label='Main Att')
-        if additive:
-            additive = self.hitPreview(x, 'additive')
-            plt.plot(x, additive,'g', label='Add')
-        if vulnerability:
-            vulnerability = self.hitPreview(x, 'vulnerability')
-            plt.plot(x, vulnerability,'c', label='Vuln')
-        if criticalChance:
-            criticalChance = self.hitPreview(x, 'criticalChance')
-            plt.plot(x, criticalChance, 'grey', label='Crit Chance')
-        if criticalDamage:
-            criticalDamage = self.hitPreview(x, 'criticalDamage')
-            plt.plot(x, criticalDamage,'r', label = 'Crit Dmg')
-        if overpowerChance:
-            overpowerChance = self.hitPreview(x, 'overpowerChance')
-            plt.plot(x, overpowerChance, 'lightBlue', label='Ovpw Chance')
-        if overpowerDamage:
-            overpowerDamage = self.hitPreview(x, 'overpowerDamage')
-            plt.plot(x, overpowerDamage,'b', label = 'Ovpw Dmg')
-        if legendary:
-            legendary = self.hitPreview(x, 'legendary')
-            plt.plot(x, legendary, 'orange', label='Legendary')
-
-        plt.ylabel('Damage')
-        plt.xlabel('Affix Variance')
-        plt.grid(True)
-        plt.legend()
-        plt.ticklabel_format(scilimits=(-5, 8))
-        #yaxis = plt.gca().get_yticks()
-        #plt.gca().set_yticklabels(['{:,.0f}'.format(i) for i in yaxis])
-        plt.show()
+    #def graph(self, value, skill, baseDamage, mainAttribute, additive,
+    #          vulnerability, criticalChance, criticalDamage,
+    #          overpowerChance, overpowerDamage, legendary):
+    #    
+    #    x = np.linspace(0, value, num=20)
+#
+    #    if baseDamage:
+    #        baseDamage = self.hitPreview(x, 'baseDamage')
+    #        baseDamage = plt.plot(x, baseDamage,'k', label='B Dmg')
+    #    if skill:
+    #        skill = self.hitPreview(x, 'skill')
+    #        skill = plt.plot(x, skill, 'y', label='Skill')
+    #    if mainAttribute:
+    #        mainAttribute = self.hitPreview(x, 'mainAttribute')
+    #        plt.plot(x, mainAttribute, 'lightGreen', label='Main Att')
+    #    if additive:
+    #        additive = self.hitPreview(x, 'additive')
+    #        plt.plot(x, additive,'g', label='Add')
+    #    if vulnerability:
+    #        vulnerability = self.hitPreview(x, 'vulnerability')
+    #        plt.plot(x, vulnerability,'c', label='Vuln')
+    #    if criticalChance:
+    #        criticalChance = self.hitPreview(x, 'criticalChance')
+    #        plt.plot(x, criticalChance, 'grey', label='Crit Chance')
+    #    if criticalDamage:
+    #        criticalDamage = self.hitPreview(x, 'criticalDamage')
+    #        plt.plot(x, criticalDamage,'r', label = 'Crit Dmg')
+    #    if overpowerChance:
+    #        overpowerChance = self.hitPreview(x, 'overpowerChance')
+    #        plt.plot(x, overpowerChance, 'lightBlue', label='Ovpw Chance')
+    #    if overpowerDamage:
+    #        overpowerDamage = self.hitPreview(x, 'overpowerDamage')
+    #        plt.plot(x, overpowerDamage,'b', label = 'Ovpw Dmg')
+    #    if legendary:
+    #        legendary = self.hitPreview(x, 'legendary')
+    #        plt.plot(x, legendary, 'orange', label='Legendary')
+#
+    #    plt.ylabel('Damage')
+    #    plt.xlabel('Affix Variance')
+    #    plt.grid(True)
+    #    plt.legend()
+    #    plt.ticklabel_format(scilimits=(-5, 8))
+    #    #yaxis = plt.gca().get_yticks()
+    #    #plt.gca().set_yticklabels(['{:,.0f}'.format(i) for i in yaxis])
+    #    plt.show()
 
     def graphDf(self, value, skill, baseDamage, mainAttribute, additive,
                     vulnerability, criticalChance, criticalDamage,
