@@ -303,6 +303,14 @@ class D4damage():
         self.remove(equip2)
 
         return base, hit1, hit2
+    
+    def toDict(self):
+        dmgDict = {}
+        dmgDict['skill'] = self.skill
+        dmgDict['baseDamageMin'] = self.baseDamageMin
+        dmgDict['baseDamageMax'] = self.baseDamageMax
+        
+
 
         
 
