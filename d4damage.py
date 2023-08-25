@@ -309,6 +309,13 @@ class D4damage():
         dmgDict['skill'] = self.skill
         dmgDict['baseDamageMin'] = self.baseDamageMin
         dmgDict['baseDamageMax'] = self.baseDamageMax
+        dmgDict['mainAttribute'] = self.mainAttribute
+        dmgDict['additive'] = self.additive
+        dmgDict['vulnerability'] = self.vulnerability
+        dmgDict['criticalChance'] = self.criticalChance
+        dmgDict['criticalDamage'] = self.criticalDamage
+        dmgDict['overpowerChance'] = self.overpowerChance
+        dmgDict['overpowerDamage'] = self.overpowerDamage
         
 
 

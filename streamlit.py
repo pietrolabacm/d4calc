@@ -1,5 +1,5 @@
-import streamlit as st
 from d4damage import *
+import streamlit as st
 
 if 'calculate' not in st.session_state:
     st.session_state.calculate = False
@@ -52,7 +52,6 @@ buttonCol1.button('Calculate',on_click=click_calculate, use_container_width=True
 buttonCol2.button('Mean', on_click=click_mean, use_container_width=True)
 buttonCol3.button('Graph', on_click=click_graph, use_container_width=True)
 
-
 affixValue = st.slider('Affix Value',0,100)
 
 col1, col2, col3, col4 = st.columns(4)
@@ -74,22 +73,24 @@ if st.session_state.calculate:
                    vulnerability, criticalChance, criticalDamage, 
                    overpowerChance, overpowerDamage)
     hit, critical, overpower = dmg.hit()
-    color = ':black'
+    color = 'black'
 
     if critical:
-        color = ':red'
+        color = '#ebdb34'
     if overpower:
-        color = ':blue'
+        color = 'blue'
     if critical and overpower:
-        color = ':orange'
-    buttonCol1.write('%s[%.2f]' % (color,hit))
+        color = 'orange'
+    #buttonCol1.write('%s[%.2f]' % (color,hit))
+    buttonCol1.write('<div style="text-align: center;color:%s;"> %.2f </div>' % (color,hit), unsafe_allow_html=True)
 
 if st.session_state.mean:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
                    vulnerability, criticalChance, criticalDamage, 
                    overpowerChance, overpowerDamage)
     meanHit = dmg.meanHit()
-    buttonCol2.write('%.2f' % meanHit)
+    #buttonCol2.write('%.2f' % meanHit)
+    buttonCol2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), unsafe_allow_html=True)
 
 if st.session_state.graph:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,

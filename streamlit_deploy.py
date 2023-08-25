@@ -393,13 +393,13 @@ def click_graph():
 
 st.title('D4Calc')
 
-skill = st.number_input('Skill    :red[*required]', format='%.2f',step=0.5)
+skill = st.number_input('Skill :red[*required]', format='%.2f',step=0.5)
 col1, col2 = st.columns(2)
-baseDamageMin = col1.number_input('Min. Damage    :red[*required]', 
+baseDamageMin = col1.number_input('Min. Damage :red[*required]', 
                                   format='%.2f', step=0.5)
-baseDamageMax = col2.number_input('Max. Damage    :red[*required]', 
+baseDamageMax = col2.number_input('Max. Damage :red[*required]', 
                                   format='%.2f', step=0.5)
-mainAttribute = st.number_input('Main Attribute    :red[*required]', 
+mainAttribute = st.number_input('Main Attribute :red[*required]', 
                                 format='%d',step=1)
 additive = st.number_input('Additive', format='%.2f', step=0.5)
 vulnerability = st.number_input('Vulnerability', format='%.2f', step=0.5)
@@ -418,7 +418,6 @@ buttonCol1, buttonCol2, buttonCol3 = st.columns(3)
 buttonCol1.button('Calculate',on_click=click_calculate, use_container_width=True)
 buttonCol2.button('Mean', on_click=click_mean, use_container_width=True)
 buttonCol3.button('Graph', on_click=click_graph, use_container_width=True)
-
 
 affixValue = st.slider('Affix Value',0,100)
 
@@ -441,22 +440,24 @@ if st.session_state.calculate:
                    vulnerability, criticalChance, criticalDamage, 
                    overpowerChance, overpowerDamage)
     hit, critical, overpower = dmg.hit()
-    color = ':black'
+    color = 'black'
 
     if critical:
-        color = ':red'
+        color = '#ebdb34'
     if overpower:
-        color = ':blue'
+        color = 'blue'
     if critical and overpower:
-        color = ':orange'
-    buttonCol1.write('%s[%.2f]' % (color,hit))
+        color = 'orange'
+    #buttonCol1.write('%s[%.2f]' % (color,hit))
+    buttonCol1.write('<div style="text-align: center;color:%s;"> %.2f </div>' % (color,hit), unsafe_allow_html=True)
 
 if st.session_state.mean:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
                    vulnerability, criticalChance, criticalDamage, 
                    overpowerChance, overpowerDamage)
     meanHit = dmg.meanHit()
-    buttonCol2.write('%.2f' % meanHit)
+    #buttonCol2.write('%.2f' % meanHit)
+    buttonCol2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), unsafe_allow_html=True)
 
 if st.session_state.graph:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
