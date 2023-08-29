@@ -47,9 +47,9 @@ overpowerDamage = col2.number_input('Overpower Damage', format='%.2f',step=0.5,
                                     value=50.0)
 legendary = st.number_input('Legendary', format='%.2f', step=0.5)
 
-buttonCol1, buttonCol2, buttonCol3 = st.columns(3)
-buttonCol1.button('Calculate',on_click=click_calculate, use_container_width=True)
-buttonCol2.button('Mean', on_click=click_mean, use_container_width=True)
+textOut1, textOut2, buttonCol3 = st.columns(3)
+textOut1.button('Calculate',on_click=click_calculate, use_container_width=True)
+textOut2.button('Mean', on_click=click_mean, use_container_width=True)
 buttonCol3.button('Graph', on_click=click_graph, use_container_width=True)
 
 affixValue = st.slider('Affix Value',0,100)
@@ -82,7 +82,7 @@ if st.session_state.calculate:
     if critical and overpower:
         color = 'orange'
     #buttonCol1.write('%s[%.2f]' % (color,hit))
-    buttonCol1.write('<div style="text-align: center;color:%s;"> %.2f </div>' % (color,hit), unsafe_allow_html=True)
+    textOut1.write('<div style="text-align: center;color:%s;"> %.2f </div>' % (color,hit), unsafe_allow_html=True)
 
 if st.session_state.mean:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
@@ -90,7 +90,7 @@ if st.session_state.mean:
                    overpowerChance, overpowerDamage)
     meanHit = dmg.meanHit()
     #buttonCol2.write('%.2f' % meanHit)
-    buttonCol2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), unsafe_allow_html=True)
+    textOut2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), unsafe_allow_html=True)
 
 if st.session_state.graph:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,

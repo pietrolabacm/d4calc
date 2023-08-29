@@ -367,22 +367,15 @@ def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainAttribute,
 ##############################################################################
 
 import streamlit as st
+from streamlit import *
 
 if 'calculate' not in st.session_state:
     st.session_state.calculate = False
-if 'mean' not in st.session_state:
-    st.session_state.mean = False
 if 'graph' not in st.session_state:
     st.session_state.graph = False
 
 def click_calculate():
     st.session_state.calculate = True
-
-def click_mean():
-    if st.session_state.mean:
-        st.session_state.mean=False
-    else:
-        st.session_state.mean=True
 
 def click_graph():
     if st.session_state.graph:
@@ -390,83 +383,121 @@ def click_graph():
     else:
         st.session_state.graph=True
 
+st.title('D4Calc', False)
 
-st.title('D4Calc')
+superCol1, superCol2 = st.columns(2)
+with superCol1 as scol1:
+    manual, equip = st.tabs(['Manual', 'Equipments (Beta)'])
+    with manual:
 
-skill = st.number_input('Skill :red[*required]', format='%.2f',step=0.5)
-col1, col2 = st.columns(2)
-baseDamageMin = col1.number_input('Min. Damage :red[*required]', 
-                                  format='%.2f', step=0.5)
-baseDamageMax = col2.number_input('Max. Damage :red[*required]', 
-                                  format='%.2f', step=0.5)
-mainAttribute = st.number_input('Main Attribute :red[*required]', 
-                                format='%d',step=1)
-additive = st.number_input('Additive', format='%.2f', step=0.5)
-vulnerability = st.number_input('Vulnerability', format='%.2f', step=0.5)
-col1, col2 = st.columns(2)
-criticalChance = col1.number_input('Critical Chance', format='%.2f',step=0.2,
-                                   value=5.0)
-criticalDamage = col2.number_input('Critical Damage', format='%.2f',step=0.5,
-                                   value=50.0)
-overpowerChance = col1.number_input('Overpower Chance', format='%.2f',step=0.2,
-                                    value=3.0)
-overpowerDamage = col2.number_input('Overpower Damage', format='%.2f',step=0.5,
-                                    value=50.0)
-legendary = st.number_input('Legendary', format='%.2f', step=0.5)
+        skill = st.number_input('Skill :red[*required]', format='%.2f',step=0.5)
+        col1, col2 = st.columns(2)
+        baseDamageMin = col1.number_input('Min. Damage :red[*required]', 
+                                        format='%d', step=1)
+        baseDamageMax = col2.number_input('Max. Damage :red[*required]', 
+                                        format='%d', step=1)
+        mainAttribute = st.number_input('Main Attribute :red[*required]', 
+                                        format='%d',step=1)
+        additive = st.number_input('Additive', format='%.2f', step=0.5)
+        vulnerability = st.number_input('Vulnerability', format='%.2f', step=0.5)
+        col1, col2 = st.columns(2)
+        criticalChance = col1.number_input('Critical Chance', format='%.2f',step=0.2,
+                                        value=5.0)
+        criticalDamage = col2.number_input('Critical Damage', format='%.2f',step=0.5,
+                                        value=50.0)
+        overpowerChance = col1.number_input('Overpower Chance', format='%.2f',step=0.2,
+                                            value=3.0)
+        overpowerDamage = col2.number_input('Overpower Damage', format='%.2f',step=0.5,
+                                            value=50.0)
+        legendary = st.number_input('Legendary', format='%.2f', step=0.5)
+    
+    with equip:
+        affixList = ['additive','vuln']
+        with st.expander('Helm :tophat:'):
+            col1, col2 = st.columns(2)
+            helm1a = col1.selectbox('Affix1',affixList)
+            helm1 = col2.number_input('',format='%.2f',step=0.5,key='helm1')
 
-buttonCol1, buttonCol2, buttonCol3 = st.columns(3)
-buttonCol1.button('Calculate',on_click=click_calculate, use_container_width=True)
-buttonCol2.button('Mean', on_click=click_mean, use_container_width=True)
-buttonCol3.button('Graph', on_click=click_graph, use_container_width=True)
+            helm2a = col1.selectbox('Affix2',affixList)
+            helm2 = col2.number_input('', format='%.2f',step=0.5,key='helm2')
+            
+            helm3a = col1.selectbox('Affix3',affixList)
+            helm3 = col2.number_input('', format='%.2f',step=0.5,key='helm3')
+            
+            helm4a = col1.selectbox('Affix4',affixList)
+            helm4 = col2.number_input('', format='%.2f',step=0.5,key='helm4')
 
-affixValue = st.slider('Affix Value',0,100)
+with superCol2 as scol2:
+    textOut1, textOut2 = st.columns(2)
+    st.button('Calculate',on_click=click_calculate, use_container_width=True)
+    st.button('Graph', on_click=click_graph, use_container_width=True)
 
-col1, col2, col3, col4 = st.columns(4)
-skillCheck = col1.checkbox('Skill')
-baseDamageCheck = col2.checkbox('Base Damage')
-mainAttributeCheck = col3.checkbox('Main Attribute')
-additiveCheck = col4.checkbox('Additive')
+    affixValue = st.slider('Affix Value',0,100)
 
-vulnerabilityCheck = col1.checkbox('Vulnerability')
-criticalChanceCheck = col2.checkbox('Critical Chance')
-criticalDamageCheck = col3.checkbox('Critical Damage')
-overpowerChanceCheck = col4.checkbox('Overpower Chance')
+    col1, col2 = st.columns(2)
+    skillCheck = col1.checkbox('Skill')
+    baseDamageCheck = col2.checkbox('Base Damage')
 
-overpowerDamageCheck = col1.checkbox('Overpower Damage')
-legendaryCheck = col2.checkbox('Legendary')
+    mainAttributeCheck = col1.checkbox('Main Attribute')
+    additiveCheck = col2.checkbox('Additive')
+
+    vulnerabilityCheck = col1.checkbox('Vulnerability')
+    criticalChanceCheck = col2.checkbox('Critical Chance')
+
+    criticalDamageCheck = col1.checkbox('Critical Damage')
+    overpowerChanceCheck = col2.checkbox('Overpower Chance')
+
+    overpowerDamageCheck = col1.checkbox('Overpower Damage')
+    legendaryCheck = col2.checkbox('Legendary')
+
+if baseDamageMin>baseDamageMax:
+    baseDamageMax=baseDamageMin
+
+
+dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
+                    vulnerability, criticalChance, criticalDamage, 
+                    overpowerChance, overpowerDamage)
+try:
+    hit, critical, overpower = dmg.hit()
+    meanHit = dmg.meanHit()
+except:
+    hit,critical, overpower = (0.0,False,False)
+    meanHit = 0.0
+
+color = 'white'
+
+if critical:
+    color = '#ebdb34'
+if overpower:
+    color = 'blue'
+if critical and overpower:
+    color = 'orange'
+
+
+
+textOut1.write('<div style="text-align: center">Damage</div>', 
+                unsafe_allow_html=True)
+textOut1.write('<div style="text-align: center;color:%s;"> %.2f </div>' 
+                % (color,hit), unsafe_allow_html=True)
+
+textOut2.write('<div style="text-align: center">Mean Damage</div>', 
+                unsafe_allow_html=True)
+textOut2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), 
+                unsafe_allow_html=True)
+
+
 
 if st.session_state.calculate:
-    dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
-                   vulnerability, criticalChance, criticalDamage, 
-                   overpowerChance, overpowerDamage)
     hit, critical, overpower = dmg.hit()
-    color = 'black'
-
-    if critical:
-        color = '#ebdb34'
-    if overpower:
-        color = 'blue'
-    if critical and overpower:
-        color = 'orange'
-    #buttonCol1.write('%s[%.2f]' % (color,hit))
-    buttonCol1.write('<div style="text-align: center;color:%s;"> %.2f </div>' % (color,hit), unsafe_allow_html=True)
-
-if st.session_state.mean:
-    dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
-                   vulnerability, criticalChance, criticalDamage, 
-                   overpowerChance, overpowerDamage)
-    meanHit = dmg.meanHit()
-    #buttonCol2.write('%.2f' % meanHit)
-    buttonCol2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), unsafe_allow_html=True)
 
 if st.session_state.graph:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
-                   vulnerability, criticalChance, criticalDamage, 
-                   overpowerChance, overpowerDamage)
+                vulnerability, criticalChance, criticalDamage, 
+                overpowerChance, overpowerDamage)
     df = dmg.graphDf(affixValue,skillCheck,baseDamageCheck,mainAttributeCheck,
-                     additiveCheck, vulnerabilityCheck, criticalChanceCheck,
-                     criticalDamageCheck, overpowerChanceCheck, 
-                     overpowerDamageCheck, legendaryCheck)
+                    additiveCheck, vulnerabilityCheck, criticalChanceCheck,
+                    criticalDamageCheck, overpowerChanceCheck, 
+                    overpowerDamageCheck, legendaryCheck)
     
     tab1, tab2 = st.tabs(['Graph','Data'])
     tab1.line_chart(df)
