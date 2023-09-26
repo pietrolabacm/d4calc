@@ -1,21 +1,22 @@
 import pyautogui
 import time
 import keyboard
+import signal
 
+def signal_handler(signal, frame):
+    global interrupted
+    interrupted = True
+
+signal.signal(signal.SIGINT, signal_handler)
 print('Preventing lock')
-print('Keep pressed Q to quit')
+print('Ctrl C to quit')
 
+interrupted = False
 while True:        
-    try:
-        pyautogui.press('volumedown')
-        time.sleep(1)
-        if keyboard.is_pressed('q'):
-            break
-        pyautogui.press('volumeup')
-        time.sleep(5)
-        if keyboard.is_pressed('q'):
-            break
-    except KeyboardInterrupt:
+    pyautogui.press('volumedown')
+    time.sleep(15)
+    pyautogui.press('volumeup')
+    time.sleep(15)
+    if interrupted:
+        print("Prevent stopped")
         break
-
-print('Prevent stopped')
