@@ -460,7 +460,7 @@ if not st.session_state.load:
         
 with superCol2 as scol2:
     download = st.empty()
-    fileUpload = st.file_uploader('Upload:file_folder:',type = 'json', 
+    fileUpload = st.file_uploader('Load:file_folder:',type = 'json', 
                                   on_change = load)
 
     st.button('Calculate',
@@ -472,11 +472,11 @@ with superCol2 as scol2:
     
     textOut1, textOut2 = st.columns(2)
 
-    affixValue = st.slider('Affix Value',0,100)
+    affixValue = st.slider('Affix Value',0,100,10)
 
     col1, col2 = st.columns(2)
-    skillCheck = col1.checkbox('Skill')
-    baseDamageCheck = col2.checkbox('Base Damage')
+    skillCheck = col1.checkbox('Skill',True)
+    baseDamageCheck = col2.checkbox('Base Damage',True)
 
     mainAttributeCheck = col1.checkbox('Main Attribute')
     additiveCheck = col2.checkbox('Additive')
