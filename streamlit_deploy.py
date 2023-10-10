@@ -3,6 +3,7 @@ import statistics
 #import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import json as js
 import csv
 import os
 
@@ -333,35 +334,6 @@ class Equipment():
         self.mainAttribute = sum(mainAttributeList)
         self.additive = sum(additiveList)
 
-
-
-def readDamageFromInput(skill, baseDamageMin, baseDamageMax, mainAttribute,
-                        additive, vulnerability, criticalChance,
-                        criticalDamage, overpowerChance,
-                        overpowerDamage, Legendary):
-
-    damage = D4damage(eval(skill),
-                      eval(baseDamageMin),
-                      eval(baseDamageMax),
-                      eval(mainAttribute))
-    
-    if additive:
-        damage.additive = eval(additive)
-    if vulnerability:
-        damage.vulnerability = eval(vulnerability)
-    if criticalChance:
-        damage.criticalChance = eval(criticalChance)
-    if criticalDamage:
-        damage.criticalDamage = eval(criticalDamage)
-    if Legendary:
-        damage.legendary = eval(Legendary)
-    if overpowerChance:
-        damage.overpowerChance = eval(overpowerChance)
-    if overpowerDamage:
-        damage.overpowerDamage = eval(overpowerDamage)
-
-    return damage
-
 ##############################################################################
 #                          STREAMLIT STARTS HERE
 ##############################################################################
@@ -373,6 +345,27 @@ if 'calculate' not in st.session_state:
     st.session_state.calculate = False
 if 'graph' not in st.session_state:
     st.session_state.graph = False
+if 'load' not in st.session_state:
+    st.session_state.load = False
+
+widget_values = {}
+
+def make_recording_widget(f):
+
+    def wrapper(label, *args, **kwargs):
+        widget_value = f(label, *args, **kwargs)
+        widget_values[label] = widget_value
+        return widget_value
+    
+    return wrapper
+
+numInput = make_recording_widget(st.number_input)
+
+def load():
+    if st.session_state.load:
+        st.session_state.load = False
+    else:
+        st.session_state.load = True
 
 def click_calculate():
     st.session_state.calculate = True
@@ -383,54 +376,101 @@ def click_graph():
     else:
         st.session_state.graph=True
 
+
 st.title('D4Calc', False)
 
 superCol1, superCol2 = st.columns(2)
-with superCol1 as scol1:
-    manual, equip = st.tabs(['Manual', 'Equipments (Beta)'])
-    with manual:
 
-        skill = st.number_input('Skill :red[*required]', format='%.2f',step=0.5)
+#with superCol1 as scol1:
+#    skill = st.empty()
+#    colBDmg1, colBdmg2 = st.columns(2)
+#    with colBDmg1:
+#        baseDamageMin = st.empty()
+#    with colBdmg2:
+#        baseDamageMax = st.empty()
+#    mainAttribute = st.empty()
+#    additive = st.empty
+#    vulnerability = st.empty
+#    colChance1, colChance2 = st.columns(2)
+#    with colChance1:
+#        criticalChance = st.empty()
+#        overpowerChance = st.empty()
+#    with colChance2:
+#        criticalDamage = st.empty()
+#        overpowerDamage = st.empty()
+#    legendary = st.empty()    
+
+if not st.session_state.load:
+    with superCol1:
+        skill = numInput('Skill :red[*required]', 
+                    format='%.2f', 
+                    step=0.5)
+
         col1, col2 = st.columns(2)
-        baseDamageMin = col1.number_input('Min. Damage :red[*required]', 
-                                        format='%d', step=1)
-        baseDamageMax = col2.number_input('Max. Damage :red[*required]', 
-                                        format='%d', step=1)
-        mainAttribute = st.number_input('Main Attribute :red[*required]', 
-                                        format='%d',step=1)
-        additive = st.number_input('Additive', format='%.2f', step=0.5)
-        vulnerability = st.number_input('Vulnerability', format='%.2f', step=0.5)
+        with col1:
+            baseDamageMin = numInput('Min. Damage :red[*required]', 
+                                    format='%d', 
+                                    step=1)
+        with col2:
+            baseDamageMax = numInput('Max. Damage :red[*required]', 
+                                    format='%d', 
+                                    step=1)
+            
+        mainAttribute = numInput('Main Attribute :red[*required]', 
+                                        format='%d',
+                                        step=1)
+        additive = numInput('Additive', 
+                                format='%.2f', 
+                                step=0.5,
+                                key='additive')
+        vulnerability = numInput('Vulnerability', 
+                                        format='%.2f', 
+                                        step=0.5,
+                                        key='vulnerability')
         col1, col2 = st.columns(2)
-        criticalChance = col1.number_input('Critical Chance', format='%.2f',step=0.2,
-                                        value=5.0)
-        criticalDamage = col2.number_input('Critical Damage', format='%.2f',step=0.5,
-                                        value=50.0)
-        overpowerChance = col1.number_input('Overpower Chance', format='%.2f',step=0.2,
-                                            value=3.0)
-        overpowerDamage = col2.number_input('Overpower Damage', format='%.2f',step=0.5,
-                                            value=50.0)
-        legendary = st.number_input('Legendary', format='%.2f', step=0.5)
-    
-    with equip:
-        affixList = ['additive','vuln']
-        with st.expander('Helm :tophat:'):
-            col1, col2 = st.columns(2)
-            helm1a = col1.selectbox('Affix1',affixList)
-            helm1 = col2.number_input('',format='%.2f',step=0.5,key='helm1')
-
-            helm2a = col1.selectbox('Affix2',affixList)
-            helm2 = col2.number_input('', format='%.2f',step=0.5,key='helm2')
+        with col1:
+            criticalChance = numInput('Critical Chance', 
+                                            format='%.2f',
+                                            step=0.2,
+                                            value=5.0,
+                                            key='criticalChance')
             
-            helm3a = col1.selectbox('Affix3',affixList)
-            helm3 = col2.number_input('', format='%.2f',step=0.5,key='helm3')
+            overpowerChance = numInput('Overpower Chance', 
+                                            format='%.2f',
+                                            step=0.2,
+                                            value=3.0,
+                                            key='overpowerChance')
+        
+        with col2:
+            criticalDamage = numInput('Critical Damage', 
+                                            format='%.2f',
+                                            step=0.5,
+                                            value=50.0,
+                                            key='criticalDamage')
             
-            helm4a = col1.selectbox('Affix4',affixList)
-            helm4 = col2.number_input('', format='%.2f',step=0.5,key='helm4')
-
+            overpowerDamage = numInput('Overpower Damage', 
+                                                format='%.2f',
+                                                step=0.5,
+                                                value=50.0,
+                                                key='overpowerDamage')
+        legendary = numInput('Legendary', 
+                                    format='%.2f', 
+                                    step=0.5,
+                                    key='legendary')
+        
 with superCol2 as scol2:
+    download = st.empty()
+    fileUpload = st.file_uploader('Upload:file_folder:',type = 'json', 
+                                  on_change = load)
+
+    st.button('Calculate',
+                            on_click=click_calculate, 
+                            use_container_width=True)
+    st.button('Graph', 
+                            on_click=click_graph, 
+                            use_container_width=True)
+    
     textOut1, textOut2 = st.columns(2)
-    st.button('Calculate',on_click=click_calculate, use_container_width=True)
-    st.button('Graph', on_click=click_graph, use_container_width=True)
 
     affixValue = st.slider('Affix Value',0,100)
 
@@ -449,14 +489,96 @@ with superCol2 as scol2:
 
     overpowerDamageCheck = col1.checkbox('Overpower Damage')
     legendaryCheck = col2.checkbox('Legendary')
+        
 
-if baseDamageMin>baseDamageMax:
-    baseDamageMax=baseDamageMin
+if st.session_state.load and fileUpload is not None:
+    widget_values = js.loads(fileUpload.getvalue())
+    skillDefault = widget_values['Skill :red[*required]']
+    baseDamageMinDefault = widget_values['Min. Damage :red[*required]']
+    baseDamageMaxDefault = widget_values['Max. Damage :red[*required]']
+    mainAttributeDefault = widget_values['Main Attribute :red[*required]']
+    additiveDefault = widget_values['Additive']
+    vulnerabilityDefault = widget_values['Vulnerability']
+    criticalChanceDefault = widget_values['Critical Chance']
+    overpowerChanceDefault = widget_values['Overpower Chance']
+    criticalDamageDefault = widget_values['Critical Damage']
+    overpowerDamageDefault = widget_values['Overpower Damage']
+    legendaryDefault = widget_values['Legendary']
+
+    with superCol1:
+        skill = numInput('Skill :red[*required]', 
+                    format='%.2f', 
+                    step=0.5,
+                    value=skillDefault)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            baseDamageMin = numInput('Min. Damage :red[*required]', 
+                                    format='%d', 
+                                    step=1,
+                                    value=baseDamageMinDefault)
+        with col2:
+            baseDamageMax = numInput('Max. Damage :red[*required]', 
+                                    format='%d', 
+                                    step=1,
+                                    value=baseDamageMaxDefault)
+            
+        mainAttribute = numInput('Main Attribute :red[*required]', 
+                                        format='%d',
+                                        step=1,
+                                        value=mainAttributeDefault)
+        additive = numInput('Additive', 
+                                format='%.2f', 
+                                step=0.5,
+                                key='additive',
+                                value = additiveDefault)
+        vulnerability = numInput('Vulnerability', 
+                                        format='%.2f', 
+                                        step=0.5,
+                                        key='vulnerability',
+                                        value = vulnerabilityDefault)
+        col1, col2 = st.columns(2)
+        with col1:
+            criticalChance = numInput('Critical Chance', 
+                                            format='%.2f',
+                                            step=0.2,
+                                            key='criticalChance',
+                                            value=criticalChanceDefault)
+            
+            overpowerChance = numInput('Overpower Chance', 
+                                            format='%.2f',
+                                            step=0.2,
+                                            key='overpowerChance',
+                                            value=overpowerChanceDefault)
+        
+        with col2:
+            criticalDamage = numInput('Critical Damage', 
+                                            format='%.2f',
+                                            step=0.5,
+                                            key='criticalDamage',
+                                            value=criticalDamageDefault)
+            
+            overpowerDamage = numInput('Overpower Damage', 
+                                                format='%.2f',
+                                                step=0.5,
+                                                key='overpowerDamage',
+                                                value=overpowerDamageDefault)
+        legendary = numInput('Legendary', 
+                                    format='%.2f', 
+                                    step=0.5,
+                                    key='legendary',
+                                    value = legendaryDefault)
 
 
-dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
-                    vulnerability, criticalChance, criticalDamage, 
-                    overpowerChance, overpowerDamage)
+if st.session_state.calculate:
+    if baseDamageMin>baseDamageMax:
+        baseDamageMax=baseDamageMin
+    dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
+            vulnerability, criticalChance, criticalDamage, 
+            overpowerChance, overpowerDamage)
+    hit, critical, overpower = dmg.hit()
+
+
 try:
     hit, critical, overpower = dmg.hit()
     meanHit = dmg.meanHit()
@@ -474,7 +596,6 @@ if critical and overpower:
     color = 'orange'
 
 
-
 textOut1.write('<div style="text-align: center">Damage</div>', 
                 unsafe_allow_html=True)
 textOut1.write('<div style="text-align: center;color:%s;"> %.2f </div>' 
@@ -485,10 +606,6 @@ textOut2.write('<div style="text-align: center">Mean Damage</div>',
 textOut2.write('<div style="text-align: center"> %.2f </div>' % (meanHit), 
                 unsafe_allow_html=True)
 
-
-
-if st.session_state.calculate:
-    hit, critical, overpower = dmg.hit()
 
 if st.session_state.graph:
     dmg = D4damage(skill, baseDamageMin, baseDamageMax, mainAttribute,additive,
@@ -502,3 +619,8 @@ if st.session_state.graph:
     tab1, tab2 = st.tabs(['Graph','Data'])
     tab1.line_chart(df)
     tab2.write(df)
+
+download.download_button('Save:floppy_disk:',
+                                  js.dumps(widget_values),
+                                  'build.json',
+                                  use_container_width=True)
